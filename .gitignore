@@ -5,3 +5,5 @@
 resource_packs/
 config.json
 *.log
+main
+oryxBuildBinary
