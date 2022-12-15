@@ -1,8 +1,8 @@
 name: Build Portal
 on:
-  release:
-    types:
-      - created
+  push:
+  workflow_dispatch:
+  
 jobs:
   build:
     name: Build ${{ matrix.os }}-${{ matrix.arch }}
@@ -24,7 +24,10 @@ jobs:
           export PATH=$PATH:$GOPATH/bin
       - name: Build Executable
         run: GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o portal_${{ matrix.os }}_${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }} -ldflags="-s -w" -v examples/main.go
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      - name: Artifact
+        uses: actions/upload-artifact@v3.1.1
         with:
-          files: portal_${{ matrix.os }}_${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }}
+          path: portal_${{ matrix.os }}_${{ matrix.arch }}${{ matrix.os == 'windows' && '.exe' || '' }}
+          # The desired behavior if no files are found using the provided path.
+          if-no-files-found: error
+          retention-days: 1
