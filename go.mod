@@ -8,7 +8,7 @@ require (
 	github.com/sandertv/gophertunnel v1.26.0
 	github.com/scylladb/go-set v1.0.3-0.20200225121959-cc7b2070d91e
 	github.com/sirupsen/logrus v1.8.1
-	go.uber.org/atomic v1.9.0
+	go.uber.org/atomic v1.10.0
 )
 
 require (
