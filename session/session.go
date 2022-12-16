@@ -1,7 +1,9 @@
 package session
 
 import (
+	"bufio"
 	"errors"
+	"os"
 	"sync"
 	"time"
 
@@ -100,6 +102,13 @@ func New(conn *minecraft.Conn, store *Store, loadBalancer LoadBalancer, log inte
 
 		s.translator = newTranslator(srvConn.GameData())
 		handlePackets(s)
+	}()
+
+	go func() {
+		reader := bufio.NewReader(os.Stdin)
+		reader.ReadRune()
+		s.log.Infof("the fallback of %v is for debug purpose", s.UUID())
+		s.Fallback()
 	}()
 	return s, nil
 }

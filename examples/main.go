@@ -90,7 +90,12 @@ func main() {
 	}()
 
 	session.Srv = portalserver.New("Hibernation", ":19131")
-	// p.ServerRegistry().AddServer(session.Srv)
+	// go func() {
+	// 	reader := bufio.NewReader(os.Stdin)
+	// 	reader.ReadRune()
+	// 	logger.Info("registered fallback server")
+	// 	p.ServerRegistry().AddServer(session.Srv)
+	// }()
 
 	for {
 		s, err := p.Accept()

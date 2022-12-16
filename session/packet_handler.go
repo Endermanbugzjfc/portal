@@ -23,11 +23,18 @@ var (
 // translations are also handled here.
 func handlePackets(s *Session) {
 	go func() {
-		defer s.Close()
+		close := true
+		defer func() {
+			if close {
+				s.Close()
+			}
+		}()
 		for {
 			pk, err := s.Conn().ReadPacket()
 			if err != nil {
 				s.log.Errorf("failed to read packet from connection: %v", err)
+				s.Fallback()
+				close = false
 				return
 			}
 			s.translatePacket(pk)
@@ -128,7 +135,8 @@ func handlePackets(s *Session) {
 						logrus.Debugln(disconnect.Error())
 						_ = s.conn.WritePacket(&packet.Disconnect{Message: disconnect.Error()})
 					}
-					s.Close()
+					// s.Close()
+					s.Fallback()
 				})
 				if c {
 					return
@@ -175,9 +183,7 @@ func handlePackets(s *Session) {
 			case *packet.SetDisplayObjective:
 				s.scoreboards.Add(pk.ObjectiveName)
 			case *packet.Disconnect:
-				s.log.Debugf("%v is falling back...", s.uuid)
-				s.Transfer(Srv)
-				Hibernaters[s] = struct{}{}
+				s.Fallback()
 				return
 			}
 
@@ -189,4 +195,10 @@ func handlePackets(s *Session) {
 			})
 		}
 	}()
+}
+
+func (s *Session) Fallback() {
+	s.log.Debugf("%v is falling back...", s.uuid)
+	s.Transfer(Srv)
+	Hibernaters[s] = struct{}{}
 }
