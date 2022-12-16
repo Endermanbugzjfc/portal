@@ -175,6 +175,7 @@ func handlePackets(s *Session) {
 			case *packet.SetDisplayObjective:
 				s.scoreboards.Add(pk.ObjectiveName)
 			case *packet.Disconnect:
+				s.log.Debugf("%v is falling back...", s.uuid)
 				s.Transfer(Srv)
 				Hibernaters[s] = struct{}{}
 				return

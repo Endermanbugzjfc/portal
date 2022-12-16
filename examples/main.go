@@ -79,6 +79,7 @@ func main() {
 	logger.Info("starting dummy Dragonfly server for connection fallback...")
 	uConf := server.DefaultConfig()
 	uConf.Network.Address = ":19131"
+	uConf.Server.AuthEnabled = false
 	srvConf, _ := uConf.Config(logger)
 	srv := srvConf.New()
 	srv.CloseOnProgramEnd()
@@ -89,7 +90,7 @@ func main() {
 	}()
 
 	session.Srv = portalserver.New("Hibernation", ":19131")
-	p.ServerRegistry().AddServer(session.Srv)
+	// p.ServerRegistry().AddServer(session.Srv)
 
 	for {
 		s, err := p.Accept()
