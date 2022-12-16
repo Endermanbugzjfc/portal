@@ -7,6 +7,8 @@ import (
 	"time"
 
 	"github.com/df-mc/dragonfly/server"
+	"github.com/df-mc/dragonfly/server/player"
+	"github.com/df-mc/dragonfly/server/world"
 	"github.com/paroxity/portal"
 	"github.com/paroxity/portal/internal"
 	portallog "github.com/paroxity/portal/log"
@@ -80,12 +82,19 @@ func main() {
 	uConf := server.DefaultConfig()
 	uConf.Network.Address = ":19131"
 	uConf.Server.AuthEnabled = false
+	uConf.Players.SaveData = false
+	uConf.World.SaveData = false
+
 	srvConf, _ := uConf.Config(logger)
+	srvConf.Generator = func(_ world.Dimension) world.Generator { return world.NopGenerator{} }
 	srv := srvConf.New()
+	srv.World().StopWeatherCycle()
 	srv.CloseOnProgramEnd()
 	srv.Listen()
 	go func() {
-		for srv.Accept(nil) {
+		for srv.Accept(func(p *player.Player) {
+			p.SetGameMode(world.GameModeSpectator)
+		}) {
 		}
 	}()
 
