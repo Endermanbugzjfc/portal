@@ -2,17 +2,20 @@ package main
 
 import (
 	"encoding/json"
+	"io/ioutil"
+	"os"
+	"time"
+
+	"github.com/df-mc/dragonfly/server"
 	"github.com/paroxity/portal"
 	"github.com/paroxity/portal/internal"
 	portallog "github.com/paroxity/portal/log"
+	portalserver "github.com/paroxity/portal/server"
 	"github.com/paroxity/portal/session"
 	"github.com/paroxity/portal/socket"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/text"
 	"github.com/sirupsen/logrus"
-	"io/ioutil"
-	"os"
-	"time"
 )
 
 func main() {
@@ -72,6 +75,21 @@ func main() {
 	if conf.PlayerLatency.Report {
 		go socketServer.ReportPlayerLatency(time.Second * time.Duration(conf.PlayerLatency.UpdateInterval))
 	}
+
+	logger.Info("starting dummy Dragonfly server for connection fallback...")
+	uConf := server.DefaultConfig()
+	uConf.Network.Address = ":19131"
+	srvConf, _ := uConf.Config(logger)
+	srv := srvConf.New()
+	srv.CloseOnProgramEnd()
+	srv.Listen()
+	go func() {
+		for srv.Accept(nil) {
+		}
+	}()
+
+	session.Srv = portalserver.New("Hibernation", ":19131")
+	p.ServerRegistry().AddServer(session.Srv)
 
 	for {
 		s, err := p.Accept()

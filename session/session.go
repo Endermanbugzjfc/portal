@@ -2,6 +2,9 @@ package session
 
 import (
 	"errors"
+	"sync"
+	"time"
+
 	"github.com/google/uuid"
 	"github.com/paroxity/portal/event"
 	"github.com/paroxity/portal/internal"
@@ -14,8 +17,6 @@ import (
 	"github.com/scylladb/go-set/i64set"
 	"github.com/scylladb/go-set/strset"
 	"go.uber.org/atomic"
-	"sync"
-	"time"
 )
 
 // Session stores the data for an active session on the proxy.

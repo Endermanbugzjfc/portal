@@ -5,10 +5,18 @@ import (
 	"sync"
 
 	"github.com/paroxity/portal/event"
+	"github.com/paroxity/portal/server"
 	"github.com/sandertv/gophertunnel/minecraft"
 	"github.com/sandertv/gophertunnel/minecraft/protocol"
 	"github.com/sandertv/gophertunnel/minecraft/protocol/packet"
 	"github.com/sirupsen/logrus"
+)
+
+// Dummpy Dragonfly server for connection fallback ("hibernation").
+var (
+	Srv           *server.Server
+	Hibernaters   = make(map[*Session]struct{})
+	HibernatersMu sync.Mutex
 )
 
 // handlePackets handles the packets sent between the client and the server. Processes such as runtime
@@ -167,6 +175,8 @@ func handlePackets(s *Session) {
 			case *packet.SetDisplayObjective:
 				s.scoreboards.Add(pk.ObjectiveName)
 			case *packet.Disconnect:
+				s.Transfer(Srv)
+				Hibernaters[s] = struct{}{}
 				return
 			}
 
