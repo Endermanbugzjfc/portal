@@ -128,19 +128,21 @@ func handlePackets(s *Session) {
 				ctx := event.C()
 				s.handler().HandleServerDisconnect(ctx)
 
-				c := false
+				// c := false
 				ctx.Continue(func() {
-					c = true
+					// c = true
 					if disconnect, ok := errors.Unwrap(err).(minecraft.DisconnectError); ok {
 						logrus.Debugln(disconnect.Error())
 						_ = s.conn.WritePacket(&packet.Disconnect{Message: disconnect.Error()})
 					}
 					// s.Close()
-					s.Fallback()
+					if !s.Transferring() {
+						s.Fallback()
+					}
 				})
-				if c {
-					return
-				}
+				// if c {
+				// 	return
+				// }
 				continue
 			}
 			s.translatePacket(pk)
