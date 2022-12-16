@@ -1,6 +1,8 @@
 package socket
 
 import (
+	"time"
+
 	"github.com/paroxity/portal/server"
 	"github.com/paroxity/portal/session"
 	"github.com/paroxity/portal/socket/packet"
@@ -19,7 +21,13 @@ func (*RegisterServerHandler) Handle(p packet.Packet, srv Server, c *Client) err
 	session.HibernatersMu.Lock()
 	defer session.HibernatersMu.Unlock()
 	for s := range session.Hibernaters {
-		s.Transfer(reg)
+		go func() {
+			s := s
+			for s.Transferring() {
+				time.Sleep(time.Second)
+			}
+			s.Transfer(reg)
+		}()
 	}
 	session.Hibernaters = make(map[*session.Session]struct{})
 

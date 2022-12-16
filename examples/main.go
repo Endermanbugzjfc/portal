@@ -84,6 +84,7 @@ func main() {
 	uConf.Server.AuthEnabled = false
 	uConf.Players.SaveData = false
 	uConf.World.SaveData = false
+	uConf.Players.MaximumChunkRadius = 0
 
 	srvConf, _ := uConf.Config(logger)
 	srvConf.Generator = func(_ world.Dimension) world.Generator { return world.NopGenerator{} }

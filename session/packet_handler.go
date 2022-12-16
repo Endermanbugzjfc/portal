@@ -200,7 +200,10 @@ func handlePackets(s *Session) {
 }
 
 func (s *Session) Fallback() {
+	HibernatersMu.Lock()
+	defer HibernatersMu.Unlock()
+	Hibernaters[s] = struct{}{}
+
 	s.log.Debugf("%v is falling back...", s.uuid)
 	s.Transfer(Srv)
-	Hibernaters[s] = struct{}{}
 }
